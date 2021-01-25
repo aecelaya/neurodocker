@@ -1,0 +1,7 @@
+neurodocker.cli.minify.trace module
+===================================
+
+.. automodule:: neurodocker.cli.minify.trace
+   :members:
+   :undoc-members:
+   :show-inheritance:

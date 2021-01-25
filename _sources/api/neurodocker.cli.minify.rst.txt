@@ -1,0 +1,15 @@
+neurodocker.cli.minify package
+==============================
+
+.. automodule:: neurodocker.cli.minify
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   neurodocker.cli.minify.trace

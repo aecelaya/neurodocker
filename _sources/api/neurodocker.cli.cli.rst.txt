@@ -1,0 +1,7 @@
+neurodocker.cli.cli module
+==========================
+
+.. automodule:: neurodocker.cli.cli
+   :members:
+   :undoc-members:
+   :show-inheritance:

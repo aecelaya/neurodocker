@@ -1,0 +1,576 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>neurodocker.cli.generate &mdash; Neurodocker  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Neurodocker
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Neurodocker</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>neurodocker.cli.generate</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for neurodocker.cli.generate</h1><div class="highlight"><pre>
+<span></span><span class="c1"># see https://click.palletsprojects.com/en/7.x/advanced/#forwarding-unknown-options</span>
+
+<span class="c1"># TODO: consider using https://github.com/click-contrib/click-option-group to create</span>
+<span class="c1"># groups of options in the cli. Could be helpful to separate the options.</span>
+
+<span class="c1"># TODO: add a dedicated class for key=value in the eat-all class.</span>
+
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">typing</span> <span class="k">as</span> <span class="nn">ty</span>
+
+<span class="kn">import</span> <span class="nn">click</span>
+
+<span class="kn">from</span> <span class="nn">neurodocker.reproenv.renderers</span> <span class="kn">import</span> <span class="n">DockerRenderer</span>
+<span class="kn">from</span> <span class="nn">neurodocker.reproenv.renderers</span> <span class="kn">import</span> <span class="n">SingularityRenderer</span>
+<span class="kn">from</span> <span class="nn">neurodocker.reproenv.state</span> <span class="kn">import</span> <span class="n">get_template</span>
+<span class="kn">from</span> <span class="nn">neurodocker.reproenv.state</span> <span class="kn">import</span> <span class="n">register_template</span>
+<span class="kn">from</span> <span class="nn">neurodocker.reproenv.state</span> <span class="kn">import</span> <span class="n">registered_templates</span>
+<span class="kn">from</span> <span class="nn">neurodocker.reproenv.state</span> <span class="kn">import</span> <span class="n">registered_templates_items</span>
+<span class="kn">from</span> <span class="nn">neurodocker.reproenv.template</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="kn">from</span> <span class="nn">neurodocker.reproenv.types</span> <span class="kn">import</span> <span class="n">allowed_pkg_managers</span>
+
+
+<div class="viewcode-block" id="GroupAddCommonParamsAndRegisteredTemplates"><a class="viewcode-back" href="../../../api/neurodocker.cli.generate.html#neurodocker.cli.generate.GroupAddCommonParamsAndRegisteredTemplates">[docs]</a><span class="k">class</span> <span class="nc">GroupAddCommonParamsAndRegisteredTemplates</span><span class="p">(</span><span class="n">click</span><span class="o">.</span><span class="n">Group</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Subclass of `click.Group` that adds parameters common to `reproenv generate`</span>
+<span class="sd">    commands, registers templates, and adds parameters to render templates.</span>
+
+<span class="sd">    Note: Commands that are part of this group must be called using the group. This is</span>
+<span class="sd">    because the `.get_command()` method of this group adds required parameters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">click</span><span class="o">.</span><span class="n">Option</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;--template-path&quot;</span><span class="p">],</span>
+                <span class="n">multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">envvar</span><span class="o">=</span><span class="s2">&quot;REPROENV_TEMPLATE_PATH&quot;</span><span class="p">,</span>
+                <span class="n">show_envvar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to directories with templates to register&quot;</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">file_okay</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dir_okay</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+
+<div class="viewcode-block" id="GroupAddCommonParamsAndRegisteredTemplates.get_command"><a class="viewcode-back" href="../../../api/neurodocker.cli.generate.html#neurodocker.cli.generate.GroupAddCommonParamsAndRegisteredTemplates.get_command">[docs]</a>    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">click</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ty</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">click</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">command</span>  <span class="c1"># return immediately to error can be logged</span>
+
+        <span class="c1"># This is only set if a subcommand is called. Calling --help on the group</span>
+        <span class="c1"># does not set --template-path.</span>
+        <span class="n">template_path</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;template_path&quot;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">())</span>
+        <span class="n">yamls</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">template_path</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;*.yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;*.yml&quot;</span><span class="p">):</span>
+                <span class="n">yamls</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">pattern</span><span class="p">))</span>
+        <span class="c1"># TODO: log warning if no yamls are found?</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">yamls</span><span class="p">:</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">register_template</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="n">params</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">click</span><span class="o">.</span><span class="n">Parameter</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">click</span><span class="o">.</span><span class="n">Option</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;--pkg-manager&quot;</span><span class="p">],</span>
+                <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">(</span><span class="n">allowed_pkg_managers</span><span class="p">,</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+                <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">multiple</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;System package manager&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">_get_common_renderer_params</span><span class="p">()</span>
+        <span class="n">params</span> <span class="o">+=</span> <span class="n">_get_params_for_registered_templates</span><span class="p">()</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">params</span> <span class="o">+=</span> <span class="n">params</span>
+        <span class="k">return</span> <span class="n">command</span></div></div>
+
+
+<span class="c1"># https://stackoverflow.com/a/65744803/5666087</span>
+<div class="viewcode-block" id="OrderedParamsCommand"><a class="viewcode-back" href="../../../api/neurodocker.cli.generate.html#neurodocker.cli.generate.OrderedParamsCommand">[docs]</a><span class="k">class</span> <span class="nc">OrderedParamsCommand</span><span class="p">(</span><span class="n">click</span><span class="o">.</span><span class="n">Command</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Subclass of `click.Command` that maintains the order of user-provided</span>
+<span class="sd">    parameters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="OrderedParamsCommand.parse_args"><a class="viewcode-back" href="../../../api/neurodocker.cli.generate.html#neurodocker.cli.generate.OrderedParamsCommand.parse_args">[docs]</a>    <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">click</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">ty</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">click</span><span class="o">.</span><span class="n">Parameter</span><span class="p">,</span> <span class="n">ty</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># run the parser for ourselves to preserve the passed order</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_parser</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+        <span class="n">param_order</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">click</span><span class="o">.</span><span class="n">Parameter</span><span class="p">]</span>
+        <span class="n">opts</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">param_order</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">param_order</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">opts</span><span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+            <span class="c1"># If we have multiple values, take the first one. We do this before type</span>
+            <span class="c1"># casting, because type casting for some reason brings all of the given</span>
+            <span class="c1"># values for a parameter into the container. Not sure why, but perhaps it</span>
+            <span class="c1"># has to do with the click.Context object.</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">multiple</span><span class="p">:</span>
+                <span class="c1"># If the value is supposed to be in a tuple, put it back in a tuple.</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span><span class="p">,)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">type_cast_value</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+
+        <span class="c1"># return &quot;normal&quot; parse results</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span></div></div>
+
+
+<span class="c1"># https://stackoverflow.com/a/48394004/5666087</span>
+<div class="viewcode-block" id="OptionEatAll"><a class="viewcode-back" href="../../../api/neurodocker.cli.generate.html#neurodocker.cli.generate.OptionEatAll">[docs]</a><span class="k">class</span> <span class="nc">OptionEatAll</span><span class="p">(</span><span class="n">click</span><span class="o">.</span><span class="n">Option</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Subclass of `click.Option` that allows for an arbitrary number of options.</span>
+
+<span class="sd">    The behavior is similar to `nargs=&quot;*&quot;` in argparse.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">nargs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;nargs&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">nargs</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;nargs, if set, must be -1 not </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">OptionEatAll</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_previous_parser_process</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_eat_all_parser</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="OptionEatAll.add_to_parser"><a class="viewcode-back" href="../../../api/neurodocker.cli.generate.html#neurodocker.cli.generate.OptionEatAll.add_to_parser">[docs]</a>    <span class="k">def</span> <span class="nf">add_to_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">parser_process</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+            <span class="c1"># method to hook to the parser.process</span>
+            <span class="n">done</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span>
+            <span class="c1"># grab everything up to the next option</span>
+            <span class="k">while</span> <span class="n">state</span><span class="o">.</span><span class="n">rargs</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">done</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eat_all_parser</span><span class="o">.</span><span class="n">prefixes</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">rargs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
+                        <span class="n">done</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">done</span><span class="p">:</span>
+                    <span class="n">value</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">rargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+            <span class="c1"># call the actual process</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_previous_parser_process</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+
+        <span class="n">retval</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">OptionEatAll</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">add_to_parser</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="p">:</span>
+            <span class="n">our_parser</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">_long_opt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="ow">or</span> <span class="n">parser</span><span class="o">.</span><span class="n">_short_opt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">our_parser</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_eat_all_parser</span> <span class="o">=</span> <span class="n">our_parser</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_previous_parser_process</span> <span class="o">=</span> <span class="n">our_parser</span><span class="o">.</span><span class="n">process</span>
+                <span class="n">our_parser</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="n">parser_process</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">retval</span></div></div>
+
+
+<div class="viewcode-block" id="KeyValuePair"><a class="viewcode-back" href="../../../api/neurodocker.cli.generate.html#neurodocker.cli.generate.KeyValuePair">[docs]</a><span class="k">class</span> <span class="nc">KeyValuePair</span><span class="p">(</span><span class="n">click</span><span class="o">.</span><span class="n">ParamType</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Type that accepts key=value pairs and converts to tuples of (key, value) if</span>
+<span class="sd">    not multiple and ((key1, value1), (key2, value2)...) if multiple.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;key=value&quot;</span>
+
+<div class="viewcode-block" id="KeyValuePair.convert"><a class="viewcode-back" href="../../../api/neurodocker.cli.generate.html#neurodocker.cli.generate.KeyValuePair.convert">[docs]</a>    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">strs</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">strs</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="s2">&quot;expected string in format &#39;key=value&#39;&quot;</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+            <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">strs</span>
+            <span class="k">return</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span>
+
+        <span class="c1"># This might be a tuple or a list if using OptionEatAll.</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">fn</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_get_common_renderer_params</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ty</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">click</span><span class="o">.</span><span class="n">Parameter</span><span class="p">]:</span>
+    <span class="n">params</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">click</span><span class="o">.</span><span class="n">Parameter</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">click</span><span class="o">.</span><span class="n">Option</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;--pkg-manager&quot;</span><span class="p">],</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">(</span><span class="n">allowed_pkg_managers</span><span class="p">,</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">multiple</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;System package manager&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">click</span><span class="o">.</span><span class="n">Option</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;-b&quot;</span><span class="p">,</span> <span class="s2">&quot;--base-image&quot;</span><span class="p">,</span> <span class="s2">&quot;from_&quot;</span><span class="p">],</span>
+            <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Base image&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">click</span><span class="o">.</span><span class="n">Option</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;--arg&quot;</span><span class="p">],</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">KeyValuePair</span><span class="p">(),</span>
+            <span class="n">multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Build-time variables (do not persist after container is built)&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">OptionEatAll</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;--copy&quot;</span><span class="p">],</span>
+            <span class="n">multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;Copy files into the container. Provide at least two paths.&quot;</span>
+                <span class="s2">&quot; The last path is always the destination path in the container.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">OptionEatAll</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;--env&quot;</span><span class="p">],</span>
+            <span class="n">multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">KeyValuePair</span><span class="p">(),</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Set persistent environment variables&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">OptionEatAll</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;--install&quot;</span><span class="p">],</span>
+            <span class="n">multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Install packages with system package manager&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">OptionEatAll</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;--label&quot;</span><span class="p">],</span>
+            <span class="n">multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">KeyValuePair</span><span class="p">(),</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Set labels on the container&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">click</span><span class="o">.</span><span class="n">Option</span><span class="p">([</span><span class="s2">&quot;--run&quot;</span><span class="p">],</span> <span class="n">multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Run commands in /bin/sh&quot;</span><span class="p">),</span>
+        <span class="n">click</span><span class="o">.</span><span class="n">Option</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;--run-bash&quot;</span><span class="p">],</span> <span class="n">multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Run commands in a bash shell&quot;</span>
+        <span class="p">),</span>
+        <span class="n">click</span><span class="o">.</span><span class="n">Option</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;--user&quot;</span><span class="p">],</span>
+            <span class="n">multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Switch to a different user (create user if it does not exist)&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">click</span><span class="o">.</span><span class="n">Option</span><span class="p">([</span><span class="s2">&quot;--workdir&quot;</span><span class="p">],</span> <span class="n">multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Set the working directory&quot;</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">params</span>
+
+
+<span class="k">def</span> <span class="nf">_create_help_for_template</span><span class="p">(</span><span class="n">template</span><span class="p">:</span> <span class="n">Template</span><span class="p">):</span>
+    <span class="n">methods</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">template</span><span class="o">.</span><span class="n">binaries</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">methods</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;binaries&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">template</span><span class="o">.</span><span class="n">source</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">methods</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">)</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\b\n</span><span class="s2">Add </span><span class="si">{</span><span class="n">template</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\n</span><span class="s2">  method=[</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">methods</span><span class="p">)</span><span class="si">}</span><span class="s2">]&quot;</span>
+    <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  options for method=</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span><span class="o">.</span><span class="n">required_arguments</span><span class="p">:</span>
+            <span class="n">h</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">    - </span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2"> [required]&quot;</span>
+            <span class="c1"># TODO: should we only include versions if using binaries?</span>
+            <span class="k">if</span> <span class="n">arg</span> <span class="o">==</span> <span class="s2">&quot;version&quot;</span> <span class="ow">and</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;binaries&quot;</span><span class="p">:</span>
+                <span class="n">h</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\n</span><span class="s2">        version=[</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="nb">sorted</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span><span class="o">.</span><span class="n">versions</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span><span class="si">}</span><span class="s2">]&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">arg</span><span class="p">,</span> <span class="n">default</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span><span class="o">.</span><span class="n">optional_arguments</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">h</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">    - </span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2"> [default: </span><span class="si">{</span><span class="n">default</span><span class="si">}</span><span class="s2">]&quot;</span>
+    <span class="k">if</span> <span class="n">template</span><span class="o">.</span><span class="n">alert</span><span class="p">:</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">**Note**: </span><span class="si">{</span><span class="n">template</span><span class="o">.</span><span class="n">alert</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="n">h</span>
+
+
+<span class="k">def</span> <span class="nf">_get_params_for_registered_templates</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ty</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">click</span><span class="o">.</span><span class="n">Parameter</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Return list of click parameters for registered templates.&quot;&quot;&quot;</span>
+    <span class="n">params</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">click</span><span class="o">.</span><span class="n">Parameter</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">names_tmpls</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">registered_templates_items</span><span class="p">())</span>
+    <span class="n">names_tmpls</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># sort by name</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">tmpl</span> <span class="ow">in</span> <span class="n">names_tmpls</span><span class="p">:</span>
+        <span class="n">hlp</span> <span class="o">=</span> <span class="n">_create_help_for_template</span><span class="p">(</span><span class="n">Template</span><span class="p">(</span><span class="n">tmpl</span><span class="p">))</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="n">OptionEatAll</span><span class="p">(</span>
+            <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="n">KeyValuePair</span><span class="p">(),</span> <span class="n">multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">hlp</span>
+        <span class="p">)</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">params</span>
+
+
+<span class="k">def</span> <span class="nf">_params_to_renderer_dict</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">click</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">pkg_manager</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Return dictionary compatible with compatible with `_Renderer.from_dict()`.&quot;&quot;&quot;</span>
+    <span class="n">renderer_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;pkg_manager&quot;</span><span class="p">:</span> <span class="n">pkg_manager</span><span class="p">,</span> <span class="s2">&quot;instructions&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">command</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="n">ty</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">OrderedParamsCommand</span><span class="p">,</span> <span class="n">cmd</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">cmd</span><span class="o">.</span><span class="n">_options</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">_get_instruction_for_param</span><span class="p">(</span><span class="n">ctx</span><span class="o">=</span><span class="n">ctx</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
+        <span class="c1"># TODO: what happens if `d is None`?</span>
+        <span class="k">if</span> <span class="n">d</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">renderer_dict</span><span class="p">[</span><span class="s2">&quot;instructions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">renderer_dict</span><span class="p">[</span><span class="s2">&quot;instructions&quot;</span><span class="p">]:</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="s2">&quot;not enough instructions to generate a container specification&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">renderer_dict</span>
+
+
+<span class="k">def</span> <span class="nf">_get_instruction_for_param</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">click</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">click</span><span class="o">.</span><span class="n">Parameter</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ty</span><span class="o">.</span><span class="n">Any</span>
+<span class="p">):</span>
+    <span class="c1"># TODO: clean this up.</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;from_&quot;</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;kwds&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;base_image&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">}}</span>
+    <span class="c1"># arg</span>
+    <span class="k">elif</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;arg&quot;</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;expected key=value pair for --arg&quot;</span>
+        <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;kwds&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="n">k</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">v</span><span class="p">}}</span>
+    <span class="c1"># copy</span>
+    <span class="k">elif</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;copy&quot;</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;expected at least two values for --copy&quot;</span>
+        <span class="n">source</span><span class="p">,</span> <span class="n">destination</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">value</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">value</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;kwds&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">source</span><span class="p">,</span> <span class="s2">&quot;destination&quot;</span><span class="p">:</span> <span class="n">destination</span><span class="p">}}</span>
+    <span class="c1"># env</span>
+    <span class="k">elif</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;env&quot;</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;kwds&quot;</span><span class="p">:</span> <span class="p">{</span><span class="o">**</span><span class="n">value</span><span class="p">}}</span>
+    <span class="c1"># install</span>
+    <span class="k">elif</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;install&quot;</span><span class="p">:</span>
+        <span class="n">opts</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="c1"># Special case. Set `opts` if provided.</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">val</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;opts=&quot;</span><span class="p">):</span>
+                <span class="n">opts</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+                <span class="n">opts</span> <span class="o">=</span> <span class="n">opts</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;opts=&quot;</span><span class="p">),</span> <span class="kc">None</span><span class="p">)]</span>  <span class="c1"># remove leading opts=</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="s2">&quot;no packages provided to install&quot;</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;kwds&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;pkgs&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">,</span> <span class="s2">&quot;opts&quot;</span><span class="p">:</span> <span class="n">opts</span><span class="p">}}</span>
+    <span class="c1"># label</span>
+    <span class="k">elif</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;kwds&quot;</span><span class="p">:</span> <span class="p">{</span><span class="o">**</span><span class="n">value</span><span class="p">}}</span>
+    <span class="c1"># run</span>
+    <span class="k">elif</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;run&quot;</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;kwds&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">}}</span>
+    <span class="c1"># run_bash</span>
+    <span class="k">elif</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;run_bash&quot;</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;kwds&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">}}</span>
+    <span class="c1"># user</span>
+    <span class="k">elif</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;user&quot;</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;kwds&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">}}</span>
+    <span class="c1"># workdir</span>
+    <span class="k">elif</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;workdir&quot;</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;kwds&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">}}</span>
+    <span class="c1"># probably a registered template?</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">registered_templates</span><span class="p">():</span>
+            <span class="n">tmpl_name</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">tmpl_name</span><span class="p">,</span> <span class="s2">&quot;kwds&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">value</span><span class="p">)}</span>
+            <span class="c1"># If the template has an alert, prompt the user for confirmation.</span>
+            <span class="n">tmpl</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="n">get_template</span><span class="p">(</span><span class="n">tmpl_name</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">alert</span><span class="p">:</span>
+                <span class="c1"># TODO: add color to this to make it visible, perhaps yellow. But there</span>
+                <span class="c1"># is no color option in `click.confirm`.</span>
+                <span class="n">click</span><span class="o">.</span><span class="n">confirm</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tmpl</span><span class="o">.</span><span class="n">alert</span><span class="si">}</span><span class="s2"> Proceed?&quot;</span><span class="p">,</span> <span class="n">abort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># TODO: should we do anything special with unknown options? Probably log it.</span>
+            <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">d</span>
+
+
+<span class="nd">@click</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="n">GroupAddCommonParamsAndRegisteredTemplates</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">template_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate a container.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="nd">@generate</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="n">OrderedParamsCommand</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">pass_context</span>
+<span class="k">def</span> <span class="nf">docker</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">click</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">pkg_manager</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate a Dockerfile.&quot;&quot;&quot;</span>
+    <span class="n">renderer_dict</span> <span class="o">=</span> <span class="n">_params_to_renderer_dict</span><span class="p">(</span><span class="n">ctx</span><span class="o">=</span><span class="n">ctx</span><span class="p">,</span> <span class="n">pkg_manager</span><span class="o">=</span><span class="n">pkg_manager</span><span class="p">)</span>
+    <span class="n">renderer</span> <span class="o">=</span> <span class="n">DockerRenderer</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">renderer_dict</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+
+<span class="nd">@generate</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="n">OrderedParamsCommand</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">pass_context</span>
+<span class="k">def</span> <span class="nf">singularity</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">click</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">pkg_manager</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate a Singularity recipe.&quot;&quot;&quot;</span>
+    <span class="n">renderer_dict</span> <span class="o">=</span> <span class="n">_params_to_renderer_dict</span><span class="p">(</span><span class="n">ctx</span><span class="o">=</span><span class="n">ctx</span><span class="p">,</span> <span class="n">pkg_manager</span><span class="o">=</span><span class="n">pkg_manager</span><span class="p">)</span>
+    <span class="n">renderer</span> <span class="o">=</span> <span class="n">SingularityRenderer</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">renderer_dict</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Neurodocker Developers.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

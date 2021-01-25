@@ -1,0 +1,24 @@
+neurodocker.cli package
+=======================
+
+.. automodule:: neurodocker.cli
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 1
+
+   neurodocker.cli.minify
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   neurodocker.cli.cli
+   neurodocker.cli.generate

@@ -1,0 +1,342 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>neurodocker.reproenv.renderers module &mdash; Neurodocker  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="neurodocker.reproenv.state module" href="neurodocker.reproenv.state.html" />
+    <link rel="prev" title="neurodocker.reproenv.exceptions module" href="neurodocker.reproenv.exceptions.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Neurodocker
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="neurodocker.html">neurodocker package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="neurodocker.html#subpackages">Subpackages</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Neurodocker</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../api.html">API Reference</a> &raquo;</li>
+        
+          <li><a href="neurodocker.html">neurodocker package</a> &raquo;</li>
+        
+          <li><a href="neurodocker.reproenv.html">neurodocker.reproenv package</a> &raquo;</li>
+        
+      <li>neurodocker.reproenv.renderers module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/neurodocker.reproenv.renderers.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-neurodocker.reproenv.renderers">
+<span id="neurodocker-reproenv-renderers-module"></span><h1>neurodocker.reproenv.renderers module<a class="headerlink" href="#module-neurodocker.reproenv.renderers" title="Permalink to this headline">¶</a></h1>
+<p>Container specification renderers.</p>
+<dl class="py class">
+<dt id="neurodocker.reproenv.renderers.DockerRenderer">
+<em class="property">class </em><code class="sig-prename descclassname">neurodocker.reproenv.renderers.</code><code class="sig-name descname">DockerRenderer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pkg_manager</span><span class="p">:</span> <span class="n">Literal<span class="p">[</span>apt<span class="p">, </span>yum<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">users</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Set<span class="p">[</span>str<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/neurodocker/reproenv/renderers.html#DockerRenderer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurodocker.reproenv.renderers.DockerRenderer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">neurodocker.reproenv.renderers._Renderer</span></code></p>
+<dl class="py method">
+<dt id="neurodocker.reproenv.renderers.DockerRenderer.arg">
+<code class="sig-name descname">arg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#neurodocker.reproenv.renderers.DockerRenderer" title="neurodocker.reproenv.renderers.DockerRenderer">neurodocker.reproenv.renderers.DockerRenderer</a><a class="reference internal" href="../_modules/neurodocker/reproenv/renderers.html#DockerRenderer.arg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurodocker.reproenv.renderers.DockerRenderer.arg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a Dockerfile <cite>ARG</cite> instruction.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="neurodocker.reproenv.renderers.DockerRenderer.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">source</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>List<span class="p">[</span>os.PathLike<span class="p">]</span><span class="p">, </span>os.PathLike<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">destination</span><span class="p">:</span> <span class="n">os.PathLike</span></em>, <em class="sig-param"><span class="n">from_</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">chown</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#neurodocker.reproenv.renderers.DockerRenderer" title="neurodocker.reproenv.renderers.DockerRenderer">neurodocker.reproenv.renderers.DockerRenderer</a><a class="reference internal" href="../_modules/neurodocker/reproenv/renderers.html#DockerRenderer.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurodocker.reproenv.renderers.DockerRenderer.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a Dockerfile <cite>COPY</cite> instruction.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="neurodocker.reproenv.renderers.DockerRenderer.env">
+<code class="sig-name descname">env</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwds</span><span class="p">:</span> <span class="n">Mapping<span class="p">[</span>str<span class="p">, </span>str<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#neurodocker.reproenv.renderers.DockerRenderer" title="neurodocker.reproenv.renderers.DockerRenderer">neurodocker.reproenv.renderers.DockerRenderer</a><a class="reference internal" href="../_modules/neurodocker/reproenv/renderers.html#DockerRenderer.env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurodocker.reproenv.renderers.DockerRenderer.env" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a Dockerfile <cite>ENV</cite> instruction.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="neurodocker.reproenv.renderers.DockerRenderer.from_">
+<code class="sig-name descname">from_</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">base_image</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">as_</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#neurodocker.reproenv.renderers.DockerRenderer" title="neurodocker.reproenv.renderers.DockerRenderer">neurodocker.reproenv.renderers.DockerRenderer</a><a class="reference internal" href="../_modules/neurodocker/reproenv/renderers.html#DockerRenderer.from_"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurodocker.reproenv.renderers.DockerRenderer.from_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a Dockerfile <cite>FROM</cite> instruction.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="neurodocker.reproenv.renderers.DockerRenderer.install">
+<code class="sig-name descname">install</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pkgs</span><span class="p">:</span> <span class="n">List<span class="p">[</span>str<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">opts</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#neurodocker.reproenv.renderers.DockerRenderer" title="neurodocker.reproenv.renderers.DockerRenderer">neurodocker.reproenv.renderers.DockerRenderer</a><a class="reference internal" href="../_modules/neurodocker/reproenv/renderers.html#DockerRenderer.install"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurodocker.reproenv.renderers.DockerRenderer.install" title="Permalink to this definition">¶</a></dt>
+<dd><p>Install system packages.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="neurodocker.reproenv.renderers.DockerRenderer.label">
+<code class="sig-name descname">label</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwds</span><span class="p">:</span> <span class="n">Mapping<span class="p">[</span>str<span class="p">, </span>str<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#neurodocker.reproenv.renderers.DockerRenderer" title="neurodocker.reproenv.renderers.DockerRenderer">neurodocker.reproenv.renderers.DockerRenderer</a><a class="reference internal" href="../_modules/neurodocker/reproenv/renderers.html#DockerRenderer.label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurodocker.reproenv.renderers.DockerRenderer.label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a Dockerfile <cite>LABEL</cite> instruction.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="neurodocker.reproenv.renderers.DockerRenderer.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">command</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#neurodocker.reproenv.renderers.DockerRenderer" title="neurodocker.reproenv.renderers.DockerRenderer">neurodocker.reproenv.renderers.DockerRenderer</a><a class="reference internal" href="../_modules/neurodocker/reproenv/renderers.html#DockerRenderer.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurodocker.reproenv.renderers.DockerRenderer.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a Dockerfile <cite>RUN</cite> instruction.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="neurodocker.reproenv.renderers.DockerRenderer.user">
+<code class="sig-name descname">user</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">user</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#neurodocker.reproenv.renderers.DockerRenderer" title="neurodocker.reproenv.renderers.DockerRenderer">neurodocker.reproenv.renderers.DockerRenderer</a><a class="reference internal" href="../_modules/neurodocker/reproenv/renderers.html#DockerRenderer.user"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurodocker.reproenv.renderers.DockerRenderer.user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a Dockerfile <cite>USER</cite> instruction. If the user is not in
+<cite>self.users</cite>, then a <cite>RUN</cite> instruction that creates the user
+will also be added.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="neurodocker.reproenv.renderers.DockerRenderer.workdir">
+<code class="sig-name descname">workdir</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n">os.PathLike</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#neurodocker.reproenv.renderers.DockerRenderer" title="neurodocker.reproenv.renderers.DockerRenderer">neurodocker.reproenv.renderers.DockerRenderer</a><a class="reference internal" href="../_modules/neurodocker/reproenv/renderers.html#DockerRenderer.workdir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurodocker.reproenv.renderers.DockerRenderer.workdir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a Dockerfile <cite>WORKDIR</cite> instruction.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="neurodocker.reproenv.renderers.SingularityRenderer">
+<em class="property">class </em><code class="sig-prename descclassname">neurodocker.reproenv.renderers.</code><code class="sig-name descname">SingularityRenderer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pkg_manager</span><span class="p">:</span> <span class="n">Literal<span class="p">[</span>apt<span class="p">, </span>yum<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">users</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Set<span class="p">[</span>str<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/neurodocker/reproenv/renderers.html#SingularityRenderer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurodocker.reproenv.renderers.SingularityRenderer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">neurodocker.reproenv.renderers._Renderer</span></code></p>
+<dl class="py method">
+<dt id="neurodocker.reproenv.renderers.SingularityRenderer.arg">
+<code class="sig-name descname">arg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#neurodocker.reproenv.renderers.SingularityRenderer" title="neurodocker.reproenv.renderers.SingularityRenderer">neurodocker.reproenv.renderers.SingularityRenderer</a><a class="reference internal" href="../_modules/neurodocker/reproenv/renderers.html#SingularityRenderer.arg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurodocker.reproenv.renderers.SingularityRenderer.arg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="neurodocker.reproenv.renderers.SingularityRenderer.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">source</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>List<span class="p">[</span>os.PathLike<span class="p">]</span><span class="p">, </span>os.PathLike<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">destination</span><span class="p">:</span> <span class="n">os.PathLike</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#neurodocker.reproenv.renderers.SingularityRenderer" title="neurodocker.reproenv.renderers.SingularityRenderer">neurodocker.reproenv.renderers.SingularityRenderer</a><a class="reference internal" href="../_modules/neurodocker/reproenv/renderers.html#SingularityRenderer.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurodocker.reproenv.renderers.SingularityRenderer.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="neurodocker.reproenv.renderers.SingularityRenderer.env">
+<code class="sig-name descname">env</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwds</span><span class="p">:</span> <span class="n">Mapping<span class="p">[</span>str<span class="p">, </span>str<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#neurodocker.reproenv.renderers.SingularityRenderer" title="neurodocker.reproenv.renderers.SingularityRenderer">neurodocker.reproenv.renderers.SingularityRenderer</a><a class="reference internal" href="../_modules/neurodocker/reproenv/renderers.html#SingularityRenderer.env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurodocker.reproenv.renderers.SingularityRenderer.env" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="neurodocker.reproenv.renderers.SingularityRenderer.from_">
+<code class="sig-name descname">from_</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">base_image</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#neurodocker.reproenv.renderers.SingularityRenderer" title="neurodocker.reproenv.renderers.SingularityRenderer">neurodocker.reproenv.renderers.SingularityRenderer</a><a class="reference internal" href="../_modules/neurodocker/reproenv/renderers.html#SingularityRenderer.from_"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurodocker.reproenv.renderers.SingularityRenderer.from_" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="neurodocker.reproenv.renderers.SingularityRenderer.install">
+<code class="sig-name descname">install</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pkgs</span><span class="p">:</span> <span class="n">List<span class="p">[</span>str<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">opts</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#neurodocker.reproenv.renderers.SingularityRenderer" title="neurodocker.reproenv.renderers.SingularityRenderer">neurodocker.reproenv.renderers.SingularityRenderer</a><a class="reference internal" href="../_modules/neurodocker/reproenv/renderers.html#SingularityRenderer.install"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurodocker.reproenv.renderers.SingularityRenderer.install" title="Permalink to this definition">¶</a></dt>
+<dd><p>Install system packages.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="neurodocker.reproenv.renderers.SingularityRenderer.label">
+<code class="sig-name descname">label</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwds</span><span class="p">:</span> <span class="n">Mapping<span class="p">[</span>str<span class="p">, </span>str<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#neurodocker.reproenv.renderers.SingularityRenderer" title="neurodocker.reproenv.renderers.SingularityRenderer">neurodocker.reproenv.renderers.SingularityRenderer</a><a class="reference internal" href="../_modules/neurodocker/reproenv/renderers.html#SingularityRenderer.label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurodocker.reproenv.renderers.SingularityRenderer.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="neurodocker.reproenv.renderers.SingularityRenderer.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">command</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#neurodocker.reproenv.renderers.SingularityRenderer" title="neurodocker.reproenv.renderers.SingularityRenderer">neurodocker.reproenv.renderers.SingularityRenderer</a><a class="reference internal" href="../_modules/neurodocker/reproenv/renderers.html#SingularityRenderer.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurodocker.reproenv.renderers.SingularityRenderer.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="neurodocker.reproenv.renderers.SingularityRenderer.user">
+<code class="sig-name descname">user</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">user</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#neurodocker.reproenv.renderers.SingularityRenderer" title="neurodocker.reproenv.renderers.SingularityRenderer">neurodocker.reproenv.renderers.SingularityRenderer</a><a class="reference internal" href="../_modules/neurodocker/reproenv/renderers.html#SingularityRenderer.user"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurodocker.reproenv.renderers.SingularityRenderer.user" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="neurodocker.reproenv.renderers.SingularityRenderer.workdir">
+<code class="sig-name descname">workdir</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n">os.PathLike</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#neurodocker.reproenv.renderers.SingularityRenderer" title="neurodocker.reproenv.renderers.SingularityRenderer">neurodocker.reproenv.renderers.SingularityRenderer</a><a class="reference internal" href="../_modules/neurodocker/reproenv/renderers.html#SingularityRenderer.workdir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurodocker.reproenv.renderers.SingularityRenderer.workdir" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="neurodocker.reproenv.state.html" class="btn btn-neutral float-right" title="neurodocker.reproenv.state module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="neurodocker.reproenv.exceptions.html" class="btn btn-neutral float-left" title="neurodocker.reproenv.exceptions module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Neurodocker Developers.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
